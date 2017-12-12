@@ -7,9 +7,15 @@ import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import Button from 'components/Button';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
+/* Redeux */
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+
+import * as actions from 'redux/actions/favorites';
+
 import styles from './styles';
 
-export default class Main extends Component {
+class Main extends Component {
   static navigationOptions = {
     header: null,
   };
@@ -18,7 +24,20 @@ export default class Main extends Component {
     navigation: PropTypes.shape({
       navigate: PropTypes.func,
     }).isRequired,
+    searchAndAddRepository: PropTypes.func.isRequired,
+    favorites: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number,
+    })).isRequired,
   };
+
+  state = {
+    newRepositoryName: '',
+  }
+
+  addNewFavorite = () => {
+    console.tron.log('shit');
+    this.props.searchAndAddRepository(this.state.newRepositoryName);
+  }
 
   render() {
     const { navigate } = this.props.navigation;
@@ -33,11 +52,13 @@ export default class Main extends Component {
             placeholder="Digite o nome do repositório"
             autoCapitalize="none"
             autoCorrect={false}
+            value={this.state.newRepositoryName}
+            onChangeText={(text) => this.setState({ newRepositoryName: text })}
           />
           <Button
             style={styles.button}
             color="success"
-            onPress={() => {}}
+            onPress={this.addNewFavorite}
           >
             Adicionar repositório
           </Button>
@@ -46,7 +67,7 @@ export default class Main extends Component {
         <View style={styles.userInformation}>
           <TouchableOpacity activeOpacity={0.6} onPress={() => { navigate('Favorites') }}>
             <Text style={styles.favoritesText}>
-              MEUS FAVORITOS (14)
+              MEUS FAVORITOS ({this.props.favorites.lenght})
             </Text>
           </TouchableOpacity>
         </View>
@@ -54,3 +75,11 @@ export default class Main extends Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  favorites: state.favorites,
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(Main);
